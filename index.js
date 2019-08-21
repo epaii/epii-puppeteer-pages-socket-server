@@ -47,6 +47,9 @@ async function start(config, handler) {
                 if (!page.doWork) {
                     page.doWork = epiiPages.doWork;
                 }
+                if (!page.getPage) {
+                    page.getPage = epiiPages.getPage;
+                }
                 handler(page, data, client);
             });
 

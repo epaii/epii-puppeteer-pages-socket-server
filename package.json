@@ -1,6 +1,6 @@
 {
   "name": "epii-puppeteer-pages-socket-server",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "a smiple socket server of node.js",
   "main": "index.js",
   "scripts": {
