@@ -13,17 +13,43 @@ socket_host_port:"0.0.0.0:4005"
 
 async function start(config, handler) {
     await epiiPages.launch(config.page_num ? config.page_num : 1, config.chrome_launch ? config.chrome_launch : null, config.launch_type ? config.launch_type : 0).catch(e => {
+        if (on_error != null) {
+            on_error(e);
+        }
     });
 
-    socket_server.start(config.socket_host_port ? config.socket_host_port : "0.0.0.0:4005", function (data, client) {
-        if (handler)
+    socket_server.start(config.socket_host_port ? config.socket_host_port : "0.0.0.0:4005", function (string, client) {
+        if (handler) {
+            const data = JSON.parse(string);
+            client.writeJsonAndClose = json => {
+                client.write(JSON.stringify(json));
+                client.close();
+            }
+
             epiiPages.doWork(page => {
-                client.writeJsonAndClose = json => {
-                    client.write(JSON.stringify(json));
-                    client.close();
+                if (data.cookies) {
+                    (async () => {
+                        for (var domain in data.cookies) {
+                            for (var index in data.cookies[domain]) {
+                                await page.setCookie({
+                                    name: index,
+                                    value: data.cookies[domain][index],
+                                    domain: domain
+                                });
+                            }
+                        }
+                    })();
+
+                }
+                if (!page.newPage) {
+                    page.doWork = epiiPages.doWork;
                 }
                 handler(page, data, client);
             });
+
+
+        }
+
     });
     socket_server.onerror(function () {
         if (on_error != null) {
