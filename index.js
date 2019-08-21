@@ -41,7 +41,7 @@ async function start(config, handler) {
                     })();
 
                 }
-                if (!page.newPage) {
+                if (!page.doWork) {
                     page.doWork = epiiPages.doWork;
                 }
                 handler(page, data, client);
