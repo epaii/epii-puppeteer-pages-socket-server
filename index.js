@@ -18,6 +18,10 @@ async function start(config, handler) {
     socket_server.start(config.socket_host_port ? config.socket_host_port : "0.0.0.0:4005", function (data, client) {
         if (handler)
             epiiPages.doWork(page => {
+                client.writeJsonAndClose = json => {
+                    client.write(JSON.stringify(json));
+                    client.close();
+                }
                 handler(page, data, client);
             });
     });
