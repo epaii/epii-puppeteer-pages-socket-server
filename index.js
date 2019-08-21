@@ -21,12 +21,15 @@ async function start(config, handler) {
     socket_server.start(config.socket_host_port ? config.socket_host_port : "0.0.0.0:4005", function (string, client) {
         if (handler) {
             const data = JSON.parse(string);
-            client.writeJsonAndClose = json => {
-                client.write(JSON.stringify(json));
-                client.close();
-            }
+
 
             epiiPages.doWork(page => {
+
+                client.writeJsonAndCloseAndPageRelease = json => {
+                    client.write(JSON.stringify(json));
+                    client.close();
+                    page.release();
+                }
                 if (data.cookies) {
                     (async () => {
                         for (var domain in data.cookies) {
