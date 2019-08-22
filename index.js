@@ -22,38 +22,12 @@ async function start(config, handler) {
         if (handler) {
             const data = JSON.parse(string);
 
-
-            epiiPages.doWork(page => {
-
-                client.writeJsonAndCloseAndPageRelease = json => {
-                    client.write(JSON.stringify(json));
-                    client.close();
-                    page.release();
-                }
-                if (data.cookies) {
-                    (async () => {
-                        for (var domain in data.cookies) {
-                            for (var index in data.cookies[domain]) {
-                                await page.setCookie({
-                                    name: index,
-                                    value: data.cookies[domain][index],
-                                    domain: domain
-                                });
-                            }
-                        }
-                    })();
-
-                }
-                if (!page.doWork) {
-                    page.doWork = epiiPages.doWork;
-                }
-                if (!page.getPage) {
-                    page.getPage = epiiPages.getPage;
-                }
-                handler(page, data, client);
-            });
-
-
+            client.writeJsonAndCloseAndPageRelease = (json, page) => {
+                client.write(JSON.stringify(json));
+                client.close();
+                page.release();
+            }
+            handler(epiiPages, data, client);
         }
 
     });
